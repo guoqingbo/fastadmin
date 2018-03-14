@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{$config.language}">
+<html lang="en">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -413,7 +413,7 @@
 
                     var token = $('#token').val();
                     if (token.length > 0) {
-                        headers['token'] = token;
+                        headers[token] = token;
                     }
 
                     $("#sandbox" + theId + " .headers input[type=text]").each(function () {

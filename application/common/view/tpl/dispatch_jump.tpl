@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>{:__('Warning')}</title>
+        <title>跳转提示</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="shortcut icon" href="__CDN__/assets/img/favicon.ico" />
         <style type="text/css">
@@ -27,18 +27,17 @@
         </style>
     </head>
     <body>
-        {php}$codeText=$code == 1 ? 'success' : ($code == 0 ? 'error' : 'info');{/php}
-        <div class="system-message {$codeText}">
+        <div class="system-message <?php echo $code == 1 ? 'success' : ($code == 0 ? 'error' : 'info');?>">
             <div class="image">
-                <img src="__CDN__/assets/img/{$codeText}.svg" alt="" width="150" />
+                <img src="__CDN__/assets/img/<?php echo $code == 1 ? 'success' : ($code == 0 ? 'error' : 'info');?>.svg" alt="" width="150" />
             </div>
-            <h1>{$msg}</h1>
+            <h1><?php echo($msg);?></h1>
             <p class="jump">
-                {:__('This page will be re-directed in %s seconds', '<span id="wait">' . $wait . '</span>')}
+                页面将在 <span id="wait"><?php echo($wait);?></span> 秒后自动<a id="href" href="<?php echo($url);?>">跳转</a>
             </p>
             <p class="clearfix">
-                <a href="javascript:history.go(-1);" class="btn btn-grey">{:__('Go back')}</a>
-                <a href="{$url}" class="btn btn-primary">{:__('Jump now')}</a>
+                <a href="javascript:history.go(-1);" class="btn btn-grey">返回上一步</a>
+                <a href="<?php echo($url);?>" class="btn btn-primary">立即跳转</a>
             </p>
         </div>
         <div class="copyright">
@@ -46,11 +45,12 @@
         </div>
         <script type="text/javascript">
             (function () {
-                var wait = document.getElementById('wait');
+                var wait = document.getElementById('wait'),
+                        href = document.getElementById('href').href;
                 var interval = setInterval(function () {
                     var time = --wait.innerHTML;
                     if (time <= 0) {
-                        location.href = "{$url}";
+                        location.href = href;
                         clearInterval(interval);
                     }
                 }, 1000);

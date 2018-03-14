@@ -90,7 +90,7 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'adminlte', 'form'], functi
                         if (ret.data && ignoreversion !== ret.data.newversion) {
                             Layer.open({
                                 title: '发现新版本',
-                                maxHeight: 400,
+                                area: ["500px", "auto"],
                                 content: '<h5 style="background-color:#f7f7f7; font-size:14px; padding: 10px;">你的版本是:' + ret.data.version + '，新版本:' + ret.data.newversion + '</h5><span class="label label-danger">更新说明</span><br/>' + ret.data.upgradetext,
                                 btn: ['去下载更新', '忽略此次更新', '不再提示'],
                                 btn2: function (index, layero) {
@@ -185,7 +185,7 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'adminlte', 'form'], functi
                     data: {action: 'refreshmenu'}
                 }, function (data) {
                     $(".sidebar-menu li:not([data-rel='external'])").remove();
-                    $(".sidebar-menu").prepend(data.menulist);
+                    $(data.menulist).insertBefore($(".sidebar-menu li:first"));
                     $("#nav ul li[role='presentation'].active a").trigger('click');
                     return false;
                 }, function () {

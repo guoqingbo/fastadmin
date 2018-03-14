@@ -1,33 +1,12 @@
 <?php
 $cdnurl = function_exists('config') ? config('view_replace_str.__CDN__') : '';
 $publicurl = function_exists('config') ? config('view_replace_str.__PUBLIC__') : '/';
-
-$lang = [
-    'An error occurred' => '发生错误',
-    'Home' => '返回主页',
-    'Feedback' => '反馈错误',
-    'The page you are looking for is temporarily unavailable' => '你所浏览的页面暂时无法访问',
-    'You can return to the previous page and try again' => '你可以返回上一页重试，或直接向我们反馈错误报告'
-];
-
-$langSet = '';
-
-if (isset($_GET['lang'])) {
-    $langSet = strtolower($_GET['lang']);
-} elseif (isset($_COOKIE['think_var'])) {
-    $langSet = strtolower($_COOKIE['think_var']);
-} elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-    preg_match('/^([a-z\d\-]+)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);
-    $langSet     = strtolower($matches[1]);
-}
-$langSet = $langSet && in_array($langSet, ['zh-cn', 'en']) ? $langSet : 'zh-cn';
-$langSet == 'en' && $lang = array_combine(array_keys($lang), array_keys($lang));
 ?>
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-        <title><?=$lang['An error occurred']?></title>
+        <title>发生错误</title>
         <meta name="robots" content="noindex,nofollow" />
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
         <link rel="shortcut icon" href="<?php echo $cdnurl;?>/assets/img/favicon.ico" />
@@ -75,24 +54,25 @@ $langSet == 'en' && $lang = array_combine(array_keys($lang), array_keys($lang));
         </style>
     </head>
     <body class="error-page-wrapper">
+
         <div class="content-container">
             <div class="head-line">
-                <img src="<?=$cdnurl?>/assets/img/error.svg" alt="" width="120"/>
+                <img src="<?php echo $cdnurl;?>/assets/img/error.svg" alt="" width="120" />
             </div>
             <div class="subheader">
-                <?=$lang['The page you are looking for is temporarily unavailable']?>
+                <?php echo htmlentities($message); ?>
             </div>
             <div class="hr"></div>
             <div class="context">
 
                 <p>
-                    <?=$lang['You can return to the previous page and try again']?>
+                    你可以返回上一页重试，或直接向我们反馈错误报告
                 </p>
 
             </div>
             <div class="buttons-container">
-                <a href="<?=$publicurl?>"><?=$lang['Home']?></a>
-                <a href="<?=$publicurl?>"><?=$lang['Feedback']?></a>
+                <a href="<?php echo $publicurl;?>">返回主页</a>
+                <a href="<?php echo $publicurl;?>">反馈错误</a>
             </div>
         </div>
     </body>

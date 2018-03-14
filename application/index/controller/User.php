@@ -31,9 +31,8 @@ class User extends Frontend
 
         //监听注册登录注销的事件
         Hook::add('user_login_successed', function($user) use($auth) {
-            $expire = input('post.keeplogin') ? 30 * 86400 : 0;
-            Cookie::set('uid', $user->id, $expire);
-            Cookie::set('token', $auth->getToken(), $expire);
+            Cookie::set('uid', $user->id);
+            Cookie::set('token', $auth->getToken());
         });
         Hook::add('user_register_successed', function($user) use($auth) {
             Cookie::set('uid', $user->id);
@@ -140,7 +139,7 @@ class User extends Frontend
         {
             $account = $this->request->post('account');
             $password = $this->request->post('password');
-            $keeplogin = (int) $this->request->post('keeplogin');
+            $keeptime = (int) $this->request->post('keeptime');
             $token = $this->request->post('__token__');
             $rule = [
                 'account'   => 'require|length:3,50',
@@ -166,7 +165,7 @@ class User extends Frontend
                 $this->error(__($validate->getError()));
                 return FALSE;
             }
-            if ($this->auth->login($account, $password))
+            if ($this->auth->login($account, $password, $keeptime))
             {
                 $synchtml = '';
                 ////////////////同步到Ucenter////////////////
@@ -204,12 +203,96 @@ class User extends Frontend
     }
 
     /**
+     * 第三方登录跳转和回调处理
+     */
+    public function third()
+    {
+        $url = url('user/index');
+        $action = $this->request->param('action');
+        $platform = $this->request->param('platform');
+        $config = get_addon_config('third');
+        if (!$config || !isset($config[$platform]))
+        {
+            $this->error(__('Invalid parameters'));
+        }
+        foreach ($config as $k => &$v)
+        {
+            $v['callback'] = url('user/third', ['action' => 'callback', 'platform' => $k], false, true);
+        }
+        unset($v);
+        $app = new \addons\third\library\Application($config);
+        if ($action == 'redirect')
+        {
+            // 跳转到登录授权页面
+            $this->redirect($app->{$platform}->getAuthorizeUrl());
+        }
+        else if ($action == 'callback')
+        {
+            // 授权成功后的回调
+            $result = $app->{$platform}->getUserInfo();
+            if ($result)
+            {
+                $loginret = \addons\third\library\Service::connect($platform, $result);
+                if ($loginret)
+                {
+                    $synchtml = '';
+                    ////////////////同步到Ucenter////////////////
+                    if (defined('UC_STATUS') && UC_STATUS)
+                    {
+                        $uc = new \addons\ucenter\library\client\Client();
+                        $synchtml = $uc->uc_user_synlogin($this->auth->id);
+                    }
+                    $this->success(__('Logged in successful') . $synchtml, $url);
+                }
+            }
+            $this->error(__('Operation failed'), $url);
+        }
+        else
+        {
+            $this->error(__('Invalid parameters'));
+        }
+    }
+
+    /**
      * 个人信息
      */
     public function profile()
     {
         $this->view->assign('title', __('Profile'));
         return $this->view->fetch();
+    }
+
+    /**
+     * 激活邮箱
+     */
+    public function activeemail()
+    {
+        $code = $this->request->request('code');
+        $code = base64_decode($code);
+        parse_str($code, $params);
+        if (!isset($params['id']) || !isset($params['time']) || !isset($params['key']))
+        {
+            $this->error(__('Invalid parameters'));
+        }
+        $user = \app\common\model\User::get($params['id']);
+        if (!$user)
+        {
+            $this->error(__('User not found'));
+        }
+        if ($user->verification->email)
+        {
+            $this->error(__('Email already activation'));
+        }
+        if ($key !== md5(md5($user->id . $user->email . $time) . $user->salt) || time() - $params['time'] > 1800)
+        {
+            $this->error(__('Secrity code already invalid'));
+        }
+        $verification = $user->verification;
+        $verification->email = 1;
+        $user->verification = $verification;
+        $user->save();
+        $this->success(__('Active email successful'), url('user/index'));
+        return;
     }
 
     /**

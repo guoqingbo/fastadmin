@@ -55,7 +55,7 @@ return [
     // | 模块设置
     // +----------------------------------------------------------------------
     // 默认模块名
-    'default_module'         => 'index',
+    'default_module'         => 'admin',
     // 禁止访问模块
     'deny_module_list'       => ['common'],
     // 默认控制器名
@@ -253,7 +253,7 @@ return [
         //自动检测更新
         'checkupdate'      => false,
         //版本号
-        'version'          => '1.0.0.20180314_beta',
+        'version'          => '1.0.0.20180308_beta',
         'api_url'          => 'http://api.fastadmin.net',
     ],
 ];
