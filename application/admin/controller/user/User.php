@@ -3,7 +3,7 @@
 namespace app\admin\controller\user;
 
 use app\common\controller\Backend;
-
+use think\Validate;
 /**
  * 会员管理
  *
@@ -74,5 +74,66 @@ class User extends Backend
         $this->view->assign('groupList', build_select('row[group_id]', \app\admin\model\UserGroup::column('id,name'), $row['group_id'], ['class' => 'form-control selectpicker']));
         return parent::edit($ids);
     }
+
+    /**
+     * 添加
+     */
+    public function add()
+    {
+        if ($this->request->isPost())
+        {
+            $params = $this->request->post("row/a");
+            if ($params)
+            {
+                if ($this->dataLimit && $this->dataLimitFieldAutoFill)
+                {
+                    $params[$this->dataLimitField] = $this->auth->id;
+                }
+                $username = $params['username'];
+                $password = $params['password'];
+                $email = $params['email'];
+                $mobile = $params['mobile'];
+
+                $rule = [
+                    'username'  => 'require|length:3,30',
+                    'password'  => 'require|length:6,30',
+                    'email'     => 'require|email',
+                    'mobile'    => 'regex:/^1\d{10}$/',
+                ];
+
+                $msg = [
+                    'username.require' => 'Username can not be empty',
+                    'username.length'  => 'Username must be 3 to 30 characters',
+                    'password.require' => 'Password can not be empty',
+                    'password.length'  => 'Password must be 6 to 30 characters',
+                    'email'            => 'Email is incorrect',
+                    'mobile'           => 'Mobile is incorrect',
+                ];
+                $data = [
+                    'username'  => $username,
+                    'password'  => $password,
+                    'email'     => $email,
+                    'mobile'    => $mobile,
+                ];
+                $validate = new Validate($rule, $msg);
+                $result = $validate->check($data);
+                if (!$result)
+                {
+                    $this->error(__($validate->getError()));
+                }
+                if (\app\common\library\Auth::instance()->register($username, $password, $email, $mobile))
+                {
+                    $this->success(__('Sign up successful'));
+                }
+                else
+                {
+                    $this->error($this->auth->getError());
+                }
+            }
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        return $this->view->fetch();
+    }
+
 
 }

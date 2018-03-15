@@ -1,7 +1,7 @@
 #/nbproject/
 #/thinkphp/
 #/vendor/
-#/runtime/*
+/runtime/*
 #/addons/*
 #/application/admin/command/Install/*.lock
 #/public/assets/libs/
