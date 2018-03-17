@@ -91,14 +91,14 @@ class User extends Backend
                 }
                 $username = $params['username'];
                 $password = $params['password'];
-                $email = $params['email'];
-                $mobile = $params['mobile'];
+//                $email = $params['email'];
+//                $mobile = $params['mobile'];
 
                 $rule = [
                     'username'  => 'require|length:3,30',
                     'password'  => 'require|length:6,30',
-                    'email'     => 'require|email',
-                    'mobile'    => 'regex:/^1\d{10}$/',
+//                    'email'     => 'require|email',
+//                    'mobile'    => 'regex:/^1\d{10}$/',
                 ];
 
                 $msg = [
@@ -112,8 +112,8 @@ class User extends Backend
                 $data = [
                     'username'  => $username,
                     'password'  => $password,
-                    'email'     => $email,
-                    'mobile'    => $mobile,
+//                    'email'     => $email,
+//                    'mobile'    => $mobile,
                 ];
                 $validate = new Validate($rule, $msg);
                 $result = $validate->check($data);
@@ -121,7 +121,8 @@ class User extends Backend
                 {
                     $this->error(__($validate->getError()));
                 }
-                if (\app\common\library\Auth::instance()->register($username, $password, $email, $mobile))
+//                if (\app\common\library\Auth::instance()->register($username, $password, $email, $mobile))
+                    if (\app\common\library\Auth::instance()->register($username, $password))
                 {
                     $this->success(__('Sign up successful'));
                 }
